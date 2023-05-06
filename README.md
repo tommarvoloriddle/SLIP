@@ -1,2 +1,4 @@
 # SLIP
 ZERO SHOT CONTEXT-BASED OBJECT SEGMENTATION USING SLIP (SAM+CLIP)
+
+## Segment anything with text prompts.
