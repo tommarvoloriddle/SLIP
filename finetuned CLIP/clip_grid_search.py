@@ -11,7 +11,6 @@ import torch
 from torch import nn
 import torch.nn.functional as F
 import timm
-# import round
 from transformers import DistilBertModel, DistilBertConfig, DistilBertTokenizer
 
 class config:
@@ -23,9 +22,20 @@ class config:
 class CLIPDataset(torch.utils.data.Dataset):
     def __init__(self, image_filenames, captions, tokenizer, transforms):
         """
-        image_filenames and captions must have the same length; so, if there are
-        multiple captions for each image, the image_filenames must have repetitive
-        file names 
+        Initializes a CLIPDataset object.
+
+        Args:
+            image_filenames (list): List of image filenames.
+            captions (list): List of captions corresponding to the images.
+            tokenizer (transformers.tokenization_utils_base.PreTrainedTokenizer):
+                Tokenizer object used to tokenize the captions.
+            transforms (torchvision.transforms.Compose): Image transformations to be applied.
+
+        Note:
+            - `image_filenames` and `captions` must have the same length.
+              If there are multiple captions for each image, the `image_filenames` list
+              must have repetitive file names.
+
         """
 
         self.image_filenames = image_filenames # one description per image
@@ -36,14 +46,24 @@ class CLIPDataset(torch.utils.data.Dataset):
         self.transforms = transforms
 
     def __getitem__(self, idx):
+        """
+        Retrieves an item from the dataset.
+
+        Args:
+            idx (int): Index of the item to retrieve.
+
+        Returns:
+            dict: A dictionary containing the encoded caption, image tensor,
+                    and the original caption.
+
+        """
+
         item = {
             key: torch.tensor(values[idx])
             for key, values in self.encoded_captions.items()
         }
 
         image = cv2.imread(f"{config.image_path}/{self.image_filenames[idx]}")
-        # print({f"{config.image_path}/{self.image_filenames[idx]}"})
-        # print("hello world")
         if image is None:
             print("None image encountered")
             
@@ -52,23 +72,46 @@ class CLIPDataset(torch.utils.data.Dataset):
         image = self.transforms(image=image)['image']
         item['image'] = torch.tensor(image).permute(2, 0, 1).float()
         item['caption'] = self.captions[idx]
-
         return item
-        # return
 
 
     def __len__(self):
+        """
+        Returns the length of the dataset.
+
+        Returns:
+            int: Length of the dataset.
+
+        """
         return len(self.captions)
 
 
 class ImageEncoder(nn.Module):
     """
-    Encode images to a fixed size vector
+    Encode images to a fixed-size vector.
+
+    Args:
+        model_name (str): Name of the image encoder model. Default is 'resnet50'.
+        pretrained (bool): Whether to use pretrained weights for the model. Default is True.
+        trainable (bool): Whether to make the model trainable. Default is True.
+
+    Attributes:
+        model (torchvision.models.ResNet): Image encoder model.
+    
     """
 
     def __init__(
         self, model_name='resnet50', pretrained=True, trainable=True
     ):
+        """
+            Initializes an ImageEncoder object.
+
+            Args:
+                model_name (str): Name of the image encoder model. Default is 'resnet50'.
+                pretrained (bool): Whether to use pretrained weights for the model. Default is True.
+                trainable (bool): Whether to make the model trainable. Default is True.
+
+        """
         super().__init__()
         self.model = timm.create_model(
             model_name, pretrained, num_classes=0, global_pool="avg"
@@ -77,11 +120,44 @@ class ImageEncoder(nn.Module):
             p.requires_grad = trainable
 
     def forward(self, x):
+        """
+        Forward pass of the ImageEncoder.
+
+        Args:
+            x (torch.Tensor): Input images to be encoded.
+
+        Returns:
+            torch.Tensor: Encoded image representation.
+
+        """
         return self.model(x)
 
 
 class TextEncoder(nn.Module):
+    """
+    Encode text input to a fixed-size vector representation.
+
+    Args:
+        model_name (str): Name of the text encoder model. Default is "distilbert-base-uncased".
+        pretrained (bool): Whether to use pretrained weights for the model. Default is True.
+        trainable (bool): Whether to make the model trainable. Default is True.
+
+    Attributes:
+        model (transformers.DistilBertModel): Text encoder model.
+        target_token_idx (int): Index of the target token used for sentence embedding.
+
+    """
+
     def __init__(self, model_name="distilbert-base-uncased", pretrained=True, trainable=True):
+        """
+        Initializes a TextEncoder object.
+
+        Args:
+            model_name (str): Name of the text encoder model. Default is "distilbert-base-uncased".
+            pretrained (bool): Whether to use pretrained weights for the model. Default is True.
+            trainable (bool): Whether to make the model trainable. Default is True.
+
+        """
         super().__init__()
         if pretrained:
             self.model = DistilBertModel.from_pretrained(model_name)
@@ -91,22 +167,59 @@ class TextEncoder(nn.Module):
         for p in self.model.parameters():
             p.requires_grad = trainable
 
-        # we are using the CLS token hidden representation as the sentence's embedding
+        # We are using the CLS token hidden representation as the sentence's embedding
         self.target_token_idx = 0
 
     def forward(self, input_ids, attention_mask):
+        """
+        Forward pass of the TextEncoder.
+
+        Args:
+            input_ids (torch.Tensor): Input token IDs.
+            attention_mask (torch.Tensor): Attention mask indicating which tokens to attend to.
+
+        Returns:
+            torch.Tensor: Encoded text representation.
+
+        """
         output = self.model(input_ids=input_ids, attention_mask=attention_mask)
         last_hidden_state = output.last_hidden_state
         return last_hidden_state[:, self.target_token_idx, :]
 
 
 class ProjectionHead(nn.Module):
+    """
+    Projection head for projecting the input embeddings to a lower-dimensional space.
+
+    Args:
+        embedding_dim (int): Dimensionality of the input embeddings.
+        projection_dim (int): Dimensionality of the projected embeddings. Default is 256.
+        dropout (float): Dropout probability. Default is 0.
+
+    Attributes:
+        projection (torch.nn.Linear): Linear projection layer.
+        gelu (torch.nn.GELU): GELU activation function.
+        fc (torch.nn.Linear): Fully connected layer.
+        dropout (torch.nn.Dropout): Dropout layer.
+        layer_norm (torch.nn.LayerNorm): Layer normalization layer.
+
+    """
+
     def __init__(
         self,
         embedding_dim,
         projection_dim=256,
         dropout=0
     ):
+        """
+        Initializes a ProjectionHead object.
+
+        Args:
+            embedding_dim (int): Dimensionality of the input embeddings.
+            projection_dim (int): Dimensionality of the projected embeddings. Default is 256.
+            dropout (float): Dropout probability. Default is 0.
+
+        """
         super().__init__()
         self.projection = nn.Linear(embedding_dim, projection_dim)
         self.gelu = nn.GELU()
@@ -115,6 +228,16 @@ class ProjectionHead(nn.Module):
         self.layer_norm = nn.LayerNorm(projection_dim)
     
     def forward(self, x):
+        """
+        Forward pass of the ProjectionHead.
+
+        Args:
+            x (torch.Tensor): Input embeddings to be projected.
+
+        Returns:
+            torch.Tensor: Projected embeddings.
+
+        """
         projected = self.projection(x)
         x = self.gelu(projected)
         x = self.fc(x)
@@ -124,6 +247,24 @@ class ProjectionHead(nn.Module):
         return x
 
 class CLIPModel(nn.Module):
+    """
+    Contrastive Language-Image Pretraining (CLIP) model.
+
+    Args:
+        temperature (float): Temperature parameter for the contrastive loss. Default is 1.
+        image_embedding (int): Dimensionality of the image embeddings. Default is 2048.
+        text_embedding (int): Dimensionality of the text embeddings. Default is 768.
+        projection_dim (int): Dimensionality of the projected embeddings. Default is 256.
+
+    Attributes:
+        image_encoder (ImageEncoder): Image encoder module.
+        text_encoder (TextEncoder): Text encoder module.
+        image_projection (ProjectionHead): Projection head for image embeddings.
+        text_projection (ProjectionHead): Projection head for text embeddings.
+        temperature (float): Temperature parameter for the contrastive loss.
+
+    """
+
     def __init__(
         self,
         temperature=1,
@@ -131,6 +272,16 @@ class CLIPModel(nn.Module):
         text_embedding=768,
         projection_dim = 256
     ):
+        """
+        Initializes a CLIPModel object.
+
+        Args:
+            temperature (float): Temperature parameter for the contrastive loss. Default is 1.
+            image_embedding (int): Dimensionality of the image embeddings. Default is 2048.
+            text_embedding (int): Dimensionality of the text embeddings. Default is 768.
+            projection_dim (int): Dimensionality of the projected embeddings. Default is 256.
+
+        """
         super().__init__()
         self.image_encoder = ImageEncoder()
         self.text_encoder = TextEncoder()
@@ -139,6 +290,16 @@ class CLIPModel(nn.Module):
         self.temperature = temperature
 
     def forward(self, batch):
+        """
+        Forward pass of the CLIPModel.
+
+        Args:
+            batch (dict): Dictionary containing input data (image, input_ids, attention_mask).
+
+        Returns:
+            torch.Tensor: Mean contrastive loss for the batch.
+
+        """
         # Getting Image and Text Features
         image_features = self.image_encoder(batch["image"])
         text_features = self.text_encoder(
@@ -163,6 +324,20 @@ class CLIPModel(nn.Module):
 
 
 def cross_entropy(preds, targets, reduction='none'):
+    """
+    Compute the cross-entropy loss between predicted logits and target probabilities.
+
+    Args:
+        preds (torch.Tensor): Predicted logits.
+        targets (torch.Tensor): Target probabilities.
+        reduction (str): Specifies the reduction to apply to the loss. 
+                         Options: 'none' (no reduction), 'mean' (mean of the losses).
+                         Default is 'none'.
+
+    Returns:
+        torch.Tensor: Cross-entropy loss.
+
+    """
     log_softmax = nn.LogSoftmax(dim=-1)
     loss = (-targets * log_softmax(preds)).sum(1)
     if reduction == "none":
@@ -172,6 +347,14 @@ def cross_entropy(preds, targets, reduction='none'):
 
 
 def make_train_valid_dfs():
+    """
+    Create train and validation dataframes from a captions CSV file.
+
+    Returns:
+        pandas.DataFrame: Train dataframe containing a subset of the captions.
+        pandas.DataFrame: Validation dataframe containing a subset of the captions.
+
+    """
     dataframe = pd.read_csv(f"{config.captions_path}/captions.csv")
     max_id = dataframe["id"].max() + 1
     image_ids = np.arange(0, max_id)
@@ -186,6 +369,18 @@ def make_train_valid_dfs():
 
 
 def build_loaders(dataframe, tokenizer, mode):
+    """
+    Build data loaders for training or validation using the given dataframe and tokenizer.
+
+    Args:
+        dataframe (pandas.DataFrame): Dataframe containing image and caption data.
+        tokenizer: Tokenizer object for encoding the captions.
+        mode (str): Mode of the data loader. Options: 'train' or 'valid'.
+
+    Returns:
+        torch.utils.data.DataLoader: Data loader for the specified mode.
+
+    """
     transforms = A.Compose(
         [
             A.Resize(224, 224, always_apply=True),
@@ -207,23 +402,72 @@ def build_loaders(dataframe, tokenizer, mode):
     return dataloader
 
 class AvgMeter:
+    """
+    Computes and tracks the average value of a metric.
+
+    Args:
+        name (str): Name of the metric. Default is "Metric".
+
+    Attributes:
+        name (str): Name of the metric.
+        avg (float): Average value of the metric.
+        sum (float): Sum of the metric values.
+        count (int): Number of metric values.
+
+    """
     def __init__(self, name="Metric"):
+        """
+        Initializes an AvgMeter object.
+
+        Args:
+            name (str): Name of the metric. Default is "Metric".
+
+        """
         self.name = name
         self.reset()
 
     def reset(self):
+        """
+        Resets the metric values to zero.
+
+        """
         self.avg, self.sum, self.count = [0] * 3
 
     def update(self, val, count=1):
+        """
+        Updates the metric values with the given value.
+
+        Args:
+            val (float): Value to update the metric with.
+            count (int): Number of occurrences of the value. Default is 1.
+
+        """
         self.count += count
         self.sum += val * count
         self.avg = self.sum / self.count
 
     def __repr__(self):
+        """
+        Returns a string representation of the metric.
+
+        Returns:
+            str: String representation of the metric in the format "Name: Average".
+
+        """
         text = f"{self.name}: {self.avg:.4f}"
         return text
 
 def get_lr(optimizer):
+    """
+    Get the learning rate of the optimizer.
+
+    Args:
+        optimizer: Optimizer object.
+
+    Returns:
+        float: Learning rate.
+
+    """
     for param_group in optimizer.param_groups:
         return param_group["lr"]
 
@@ -245,6 +489,20 @@ dataset = CLIPDataset(
 
 
 def train_epoch(model, train_loader, optimizer, lr_scheduler, step):
+    """
+    Train a model for one epoch.
+
+    Args:
+        model: Model to be trained.
+        train_loader: Data loader for training data.
+        optimizer: Optimizer for updating model parameters.
+        lr_scheduler: Learning rate scheduler.
+        step (str): Step mode for the learning rate scheduler. Options: 'batch' or 'epoch'.
+
+    Returns:
+        AvgMeter: Average loss meter for the epoch.
+
+    """
     loss_meter = AvgMeter()
     tqdm_object = tqdm(train_loader, total=len(train_loader))
     for batch in tqdm_object:
@@ -264,6 +522,17 @@ def train_epoch(model, train_loader, optimizer, lr_scheduler, step):
 
 
 def valid_epoch(model, valid_loader):
+    """
+    Perform validation for one epoch.
+
+    Args:
+        model: Model to be validated.
+        valid_loader: Data loader for validation data.
+
+    Returns:
+        AvgMeter: Average loss meter for the validation epoch.
+
+    """
     loss_meter = AvgMeter()
 
     tqdm_object = tqdm(valid_loader, total=len(valid_loader))
@@ -286,6 +555,16 @@ valid_loader = build_loaders(valid_df, tokenizer, mode="valid")
 
 
 def parameters(lr):
+    """
+    Get the parameters and their associated learning rates for optimization.
+
+    Args:
+        lr (float): Learning rate for the projection parameters.
+
+    Returns:
+        list: List of dictionaries containing the parameters and learning rates.
+
+    """
     return [
         {"params": model.image_encoder.parameters(), "lr": 1e-4},
         {"params": model.text_encoder.parameters(), "lr": 1e-5},
@@ -297,15 +576,13 @@ def parameters(lr):
 
 
 lr = [0.00001, 0.01, 0.05, 0.1, 0.5]
-# weight_decay = [0.]
 projection_dim = [128, 512]
 
-# start grid search
+# Start grid search
 for i in lr:
     for j in projection_dim:
 
         model = CLIPModel(projection_dim=j).to(config.device)
-        # model.load_state_dict(torch.load("/scratch/sa6981/Deep-Learning-Pokemon/TrainL_Metric: 2.1246_ValidL_Metric: 2.0830_Epoch_52.pt"))
         params = parameters(i)
         optimizer = torch.optim.AdamW(params, weight_decay=0.)
         lr_scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
