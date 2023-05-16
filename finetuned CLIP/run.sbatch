@@ -15,10 +15,8 @@ module purge
 
 export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK;
 
-
+      
 singularity exec --nv \
-	    --overlay /scratch/sa6981/my_env/overlay-15GB-500K.ext3:ro \
+	    --overlay /scratch/$USER/path/to/singularity.ext3:ro \
 	    /scratch/work/public/singularity/cuda11.6.124-cudnn8.4.0.27-devel-ubuntu20.04.4.sif\
-	    /bin/bash -c "source /ext3/env.sh; python /scratch/sa6981/Deep-Learning-Pokemon/train_clip_model_gs.py"
-        
-
+	    /bin/bash -c "source /ext3/env.sh; python /path/to/clip_grid_search.py"
