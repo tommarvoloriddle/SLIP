@@ -23,7 +23,7 @@ Zero Shot Context-Based Object Segmentation using SLIP (SAM+CLIP)
 - `evaluation/`
   - `ResNet_eval.ipynb` - ResNet evaluation on pokemon dataset.
   - `SLIP_segment_eval.ipynb` SLIP - Evalution of SLIP after finetuning CLIP, on pokemon dataset.
-  - `make_evalutaion_dataest.py` Creates evaluation dataset.
+  - `make_evalutaion_dataset.py` Creates evaluation dataset.
   - `pokedex.csv` Contains information mapping image index to image class.
   - `pretrained_eval_segment.ipynb` SLIP - Evalution of SLIP using pretrained CLIP, on pokemon dataset.
 - `finetuned CLIP/`
