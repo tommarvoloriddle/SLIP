@@ -13,13 +13,13 @@ ZERO SHOT CONTEXT-BASED OBJECT SEGMENTATION USING SLIP (SAM+CLIP)
 - `assests` - Contains images for plots, model architecture, and test images.
 - `baseline classifier/`
   - `classifier output/`
-   - `ResNet18_pokemon_output` - text file - output after training ResNet18 on pokemon dataset.
-   - `VGG_pokemon_output` - text file - output after training VGG on pokemon dataset.
+    - `ResNet18_pokemon_output` - text file - output after training ResNet18 on pokemon dataset.
+    - `VGG_pokemon_output` - text file - output after training VGG on pokemon dataset.
   - `models/`
-   - `ResNet18.py` - ResNet18 model.
-   - `VGG.py` - VGG model.
-  - `run_resnet.sbatch` - script to train ResNet
-  - `run_vgg.sbatch` - script to train vgg
+    - `ResNet18.py` - ResNet18 model.
+     - `VGG.py` - VGG model.
+   - `run_resnet.sbatch` - script to train ResNet
+   - `run_vgg.sbatch` - script to train vgg
 - `evaluation/`
   - `ResNet_eval.ipynb` - ResNet evaluation on pokemon dataset.
   - `SLIP_segment_eval.ipynb` SLIP - Evalution of SLIP after finetuning CLIP, on pokemon dataset.
