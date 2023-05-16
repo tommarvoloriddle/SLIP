@@ -1,6 +1,7 @@
 # SLIP
 Zero Shot Context-Based Object Segmentation using SLIP (SAM+CLIP)
-
+## Goal
+The goal of the project is to enhance the capabilities of the SAM (Spatially Aware Multimodal) model by incorporating text prompts using CLIP (Contrastive Language-Image Pretraining). This integration, known as SLIP (SAM with CLIP), aims to enable object segmentation without the need for prior training on specific classes or categories. 
 ## Our Proposed Architecture
 
 ![Alt text](/assets/Architecture.png)
