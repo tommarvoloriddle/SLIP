@@ -61,6 +61,8 @@ Zero Shot Context-Based Object Segmentation using SLIP (SAM+CLIP)
 
 [2] Radford, A.; Kim, J. W.; Hallacy, C.; Ramesh, A.; Goh, G.; Agarwal, S.; Sastry, G.; Askell, A.; Mishkin, P.; Clark, J.; Krueger, G.; and Sutskever, I. 2021. Learning Transferable Visual Models From Natural Language Supervision. arXiv:2103.00020.
 
+[3] [Contrastive Language-Image Pre-training](https://github.com/kvgarimella/dl-demos/blob/main/demo11-clip.ipynb)
+
 ## Authors
 - Arushi Arora: aa10350@nyu.edu
 - Saaketh Koundinya : sg7729@nyu.edu
