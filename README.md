@@ -3,7 +3,7 @@ Zero Shot Context-Based Object Segmentation using SLIP (SAM+CLIP)
 
 ## Our Proposed Architecture
 
-![Alt text](/assests/Architecture.png)
+![Alt text](/assets/Architecture.png)
 ## Repository Structure
 
 - `SLIP demo/`
@@ -49,7 +49,7 @@ Zero Shot Context-Based Object Segmentation using SLIP (SAM+CLIP)
 | **SLIP - finetuned** | **0.69**  | 
 
 #### Sample output from SLIP
-![Alt text](/assests/Demo.png)
+![Alt text](/assets/Demo.png)
 
 ## Authors
 - Arushi Arora: aa10350@nyu.edu
