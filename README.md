@@ -1,5 +1,5 @@
 # SLIP
-ZERO SHOT CONTEXT-BASED OBJECT SEGMENTATION USING SLIP (SAM+CLIP)
+Zero Shot Context-Based Object Segmentation using SLIP (SAM+CLIP)
 
 ## Our Proposed Architecture
 
@@ -50,9 +50,6 @@ ZERO SHOT CONTEXT-BASED OBJECT SEGMENTATION USING SLIP (SAM+CLIP)
 
 #### Sample output from SLIP
 ![Alt text](/assests/Demo.png)
-
-#### Training loss of finietune CLIP
-![Alt text](/assests/ClipLossPlot.png)
 
 ## Authors
 - Arushi Arora: aa10350@nyu.edu
