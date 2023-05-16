@@ -395,7 +395,7 @@ def build_loaders(dataframe, tokenizer, mode):
     )
     dataloader = torch.utils.data.DataLoader(
         dataset,
-        batch_size=32,
+        batch_size=64,
         num_workers=8,
         shuffle=True if mode == "train" else False,
     )
@@ -575,7 +575,7 @@ def parameters(lr):
 
 
 
-lr = [0.00001, 0.01, 0.05, 0.1, 0.5]
+lr = [0.00001, 0.0001, 0.001, 0.01, 0.1, 0.5]
 projection_dim = [128, 512]
 
 # Start grid search
@@ -595,7 +595,7 @@ for i in lr:
             os.makedirs(directory)
 
         best_loss = float('inf')
-        for epoch in range(75):
+        for epoch in range(100):
             print(f"Epoch: {epoch + 1}")
             model.train()
             train_loss = train_epoch(model, train_loader, optimizer, lr_scheduler, step)
