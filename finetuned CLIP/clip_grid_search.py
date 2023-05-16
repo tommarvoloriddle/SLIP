@@ -14,8 +14,8 @@ import timm
 from transformers import DistilBertModel, DistilBertConfig, DistilBertTokenizer
 
 class config:
-    image_path = "/scratch/sa6981/Deep-Learning-Pokemon/images"
-    captions_path = "/scratch/sa6981/Deep-Learning-Pokemon"
+    image_path = "<path to images folder>"
+    captions_path = "<path to folder where captions.csv is stored>"
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     text_tokenizer = "distilbert-base-uncased"
 

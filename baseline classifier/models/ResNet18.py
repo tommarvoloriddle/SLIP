@@ -7,7 +7,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 # Define the path to your dataset folder
-data_path = '/scratch/sg7729/DL_project/SLIP/extra_dataest/dataset/'
+data_path = '<path to your dataset folder>'
 
 # Define the transformation to be applied to each image
 transform = transforms.Compose(

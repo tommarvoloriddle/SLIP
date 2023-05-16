@@ -4,8 +4,8 @@ import pandas as pd
 from PIL import Image
 import cv2
 
-image_path = '/scratch/sg7729/DL_project/Evaluate/kaggle-one-shot-pokemon/'
-destination_path = '/scratch/sg7729/DL_project/Evaluate/stitched_images/'
+image_path = '<path to Evaluation dataset>'
+destination_path = '<path to directory where you want your evaluation dataset images to be stored>'
 num_output_images = 100
 
 # Create a list of all the classes in the dataset
@@ -62,7 +62,6 @@ for j in range(50, num_output_images):
 
     # Create a new image with the calculated dimensions
     grid = np.zeros((2*size[1], 2*size[0], 3), np.uint8)
-    # grid.fill(255)
 
     grid[:size[1], :size[0]] = image1
     grid[:size[1], size[0]:] = image2
@@ -79,8 +78,8 @@ for j in range(50, num_output_images):
 
 # create a sample DataFrame
 data = pd.DataFrame(df)
-df = pd.read_csv("/scratch/sg7729/DL_project/Evaluate/stitched_images/stitched_images.csv")
+df = pd.read_csv("<path to your evaluation csv file>")
 # append the new data to the existing DataFrame
 df = df._append(data, ignore_index=True)
 # save the DataFrame to a CSV file
-df.to_csv('/scratch/sg7729/DL_project/Evaluate/stitched_images/stitched_images.csv', index=False)
+df.to_csv('<path to your evaluation csv file>', index=False)
