@@ -3,8 +3,7 @@ ZERO SHOT CONTEXT-BASED OBJECT SEGMENTATION USING SLIP (SAM+CLIP)
 
 ## Our Proposed Architecture
 
-![Alt text](arch.png)
-
+![Alt text](/assests/Architecture.png)
 ## Repository Structure
 
 - `SLIP demo/`
@@ -37,3 +36,26 @@ ZERO SHOT CONTEXT-BASED OBJECT SEGMENTATION USING SLIP (SAM+CLIP)
   - `plot_resnet.ipynb` - plots for resnet.
   - `plot_CLIP.ipynb` - plots for CLIP.
   - `text_for_plot.txt` - best CLIP model output during grid search.
+
+## How to run
+- Run the cells of the notebooks in `SLIP demo/`
+
+## Results
+
+
+| Model Architecture  | Accuracy |
+| ------------- | ------------- | 
+| **SLIP - pretrained only** | **0.15**  | 
+| **SLIP - finetuned** | **0.69**  | 
+
+#### Sample output from SLIP
+![Alt text](/assests/Demo.png)
+
+#### Training loss of finietune CLIP
+![Alt text](/assests/ClipLossPlot.png)
+
+## Authors
+- Arushi Arora: aa10350@nyu.edu
+- Saaketh Koundinya : sg7729@nyu.edu
+- Shreya Agarwal : sa6981@nyu.edu
+
