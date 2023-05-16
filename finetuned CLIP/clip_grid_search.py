@@ -590,7 +590,7 @@ for i in lr:
         )
         step = "epoch"
 
-        directory = "/scratch/sa6981/Deep-Learning-Pokemon/gs/"+str(i)+"_"+str(j)+"/"
+        directory = "<path to where you want to store your grid search results>/gs/"+str(i)+"_"+str(j)+"/"
         if not os.path.exists(directory):
             os.makedirs(directory)
 
