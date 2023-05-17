@@ -53,7 +53,7 @@ Zero Shot Context-Based Object Segmentation using SLIP (SAM+CLIP)
 ![Alt text](/assets/Demo.png)
 
 ## Documentation
-- Project report can be found at [docs/Report.pdf](https://github.com/shreya1313/Deep-Learning-Mini-Project/blob/main/docs/Report.pdf)
+- Project report can be found at [docs/Report.pdf](https://github.com/tommarvoloriddle/SLIP/blob/main/docs/SLIP.pdf)
 
 <a name="references"></a>
 ## References
