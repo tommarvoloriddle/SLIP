@@ -1,10 +1,26 @@
 # SLIP
-Zero Shot Context-Based Object Segmentation using SLIP (SAM+CLIP)
+Zero Shot Context-Based Object Segmentation using SLIP (SAM+CLIP). [Paper] (https://arxiv.org/abs/2405.07284)
 ## Goal
 ##### The goal of the project is to enhance the capabilities of the SAM (Segment Anything Model [1](#references)) model by incorporating text prompts using CLIP (Contrastive Language-Image Pretraining [2](#references)). This integration, known as SLIP (SAM with CLIP), aims to enable object segmentation without the need for prior training on specific classes or categories. 
 ## Our Proposed Architecture
 
 ![Alt text](/assets/Architecture.png)
+
+## Citation
+
+If you use this code or data in your research, please cite the following paper:
+
+```
+@misc{gundavarapu2024zero,
+    title={Zero Shot Context-Based Object Segmentation using SLIP (SAM+CLIP)},
+    author={Saaketh Koundinya Gundavarapu and Arushi Arora and Shreya Agarwal},
+    year={2024},
+    eprint={2405.07284},
+    archivePrefix={arXiv},
+    primaryClass={cs.CV}
+}
+```
+
 ## Repository Structure
 
 - `SLIP demo/`
@@ -52,8 +68,9 @@ Zero Shot Context-Based Object Segmentation using SLIP (SAM+CLIP)
 #### Sample output from SLIP
 ![Alt text](/assets/Demo.png)
 
-## Documentation
-- Project report can be found at [docs/Report.pdf](https://github.com/tommarvoloriddle/SLIP/blob/main/docs/SLIP.pdf)
+
+
+
 
 <a name="references"></a>
 ## References
